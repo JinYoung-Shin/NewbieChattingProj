@@ -1,57 +1,99 @@
 #include "message.h"
 
-//#define MAX_CLIENT_FD 10
+
 
 void Message::encode() {
 	
-	this->length = this->plain.size();
-	char ba[4];
-	ba[0]= (( this->length >> 24 ) & 0xFF); 
-	ba[1]= (( this->length >> 16 ) & 0xFF); 
-	ba[2]= (( this->length >> 8 ) & 0xFF); 
-	ba[3]= ( this->length & 0xFF );
+	this->length = strlen(this->plain)+4;
 
-	cout <<"i"<< +ba[0] << endl;
-	cout <<"i"<< +ba[1] << endl;
-	cout <<"i"<< +ba[2] << endl;
-	cout <<"i"<< +ba[3] << endl;
-	
-	this->packet += ba[0];
-	this->packet += ba[1];
-	this->packet += ba[2];
-	this->packet += ba[3];
-	this->packet += this->type;
-//	this->packet.append(this->dest);
-//	this->packet.append(this->source);
-	this->packet.append(this->plain);
+	this->packet[0] = this->length & 0xFF ;
+	this->packet[1] = this->type;
+	this->packet[2] = this->dest; 
+	this->packet[3] = this->source;
 
-}
-
-void Message::decode() {
-	
-	this->length = (this->packet[0] << 24) | (this->packet[1] << 16 )|( this->packet[2] << 8 )| this->packet[3];
-	this->type = this->packet[4];
-	this->plain = (this->packet).substr(5,this->length);
-	
-}
-
-void Message::encrypt(int key) {
-}
-
-void Message::decrypt(int key) {
-}
-
-void Message::pop() {
-
-	// this.decode();
-	
-	
-	/*
-	for(int i = 0; i < MAX_CLIENT_FD; i++)// 전체 접속 인원 검색
+	for(int i = 0; i < strlen(this->plain); i++)
 	{
-          write(socket_id[i], this->plain, this->length);
+		this->packet[i + 4] = this->plain[i];
 	}
-	*/
+	this->packet[this->length] = '\0';
+
+
+}
+
+void Message::decode() 
+{ 
+	
+	this->length = this->packet[0] ;
+	this->type = this->packet[1];
+	this->dest = this->packet[2];
+	this->source = this->packet[3];
+	
+	for(int i = 0; i < this->length-4; i++)
+	{
+		this->plain[i] = this->packet[i+4];
+	}
+	
+	this->plain[length] = '\0';
+}
+
+void Message::encrypt(int key)
+{
+	
+}
+
+void Message::decrypt(int key) 
+{
+	
+}
+
+void Message::push(char* data) 
+{
+	strcat(buffer, data);
+	b_length += strlen(data);
+}
+	
+
+void Message::pop(int *socket_id, int s) {
+
+	if(this->b_length<=4)  //  less than header length
+	{
+		return;
+	}
+	
+	this->length = this->buffer[0];
+	
+	
+	if (this->length <= this->b_length) //more than 1 message
+	{
+		for ( int i=0; i < this->length ; i++)
+		{
+			this->packet[i] = this->buffer[i];
+		}
+		
+		this->packet[this->length] = 0;
+		
+		for ( int i=0; i < b_length - this->length+1 ; i++)
+		{
+			this->buffer[i] = this->buffer[i+this->length];
+		}
+		
+		this->b_length = this->b_length - this->length;
+		this->buffer[b_length]='\0';
+		
+		this->decode();
+		
+		this->packet[3] = s;
+		
+		for(int i = 0; i < MAX_CLIENT_FD; i++)// 전체 접속 인원 검색
+		{
+			
+			if(socket_id[i] != s)  //broadcasting except the sender client
+			{
+					send(socket_id[i], this->packet, 256, 0);  
+			}
+		}
+		
+	}
 	
 }
 

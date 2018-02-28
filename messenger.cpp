@@ -1,5 +1,6 @@
 #include "messenger.h"
-#include <thread>
+#include "message.h"
+
 
 void Messenger::sock_connect() 
 {
@@ -7,6 +8,7 @@ void Messenger::sock_connect()
 	
 	std::cout << "Please, enter the Server IP address : ";
 	std::getline(std::cin, this->serverIp);
+	// std::cin >> this->serverIp;
 	std::cout << "Please, enter the Port number : ";
 	std::cin >> this->portNo;
 	
@@ -29,13 +31,7 @@ void Messenger::sock_connect()
 		exit(1);
 	}
 	
-	std::cout << "You are connected to Server." << std::endl;
-	std::cout << "Before you start chatting, please input your ID :" << std::endl;
-	
-	// sender, receiver 추가해주나 ?
-	// std::string uid;
-	// std::getline(std::cin, uid);
-	// guest.set_info(serverIp, portNo, uid);
+	std::cout << "You are connected to Server." << std::endl;	
 }
 
 void Messenger::sock_nblock() 
@@ -44,7 +40,6 @@ void Messenger::sock_nblock()
 	this->flag = fcntl(this->cli_ssock, F_GETFL, 0);
 	if(fcntl(this->cli_ssock, F_SETFL, this->flag | O_NONBLOCK) < 0)
 	{
-		std::cout << errno << std::endl;
 		std::cout << strerror(errno) << std::endl;
 	}
 }
@@ -53,15 +48,31 @@ void Messenger::send_msg()
 {
 	while(true)
 	{
+		char get_buffer[256];
 		char send_msg[256];
-		std::cin >> send_msg;
+		memset(send_msg, 0, 256);
 		
-		// send_msg handling
+		std::cin.getline( send_msg, 256);
+
+		// std::cin >> send_msg; //.getline(send_msg, 256); //cin.getline( send_msg, 256, '\n');
+		// std::getline(std::cin, send_msg);
+		// std::cin.get(send_msg, 256);
+		// if(send_msg == NULL) 
+		// {
+			
+		// }
+		// else
+		// {
+		// 	std::cin.getline(send_msg, 256);	
+		// }
 		
+		Message temp;
+				
+		strcpy(temp.plain , send_msg);
+		temp.encode();
 		
-		if(send(this->cli_ssock, send_msg, 256, 0) < 0)
+		if(send(this->cli_ssock, temp.packet, 256, 0) < 0)
 		{
-			std::cout << errno << std::endl;
 			std::cout << strerror(errno) << std::endl;
 		}
 	}	
@@ -72,16 +83,30 @@ void Messenger::recv_msg()
 	while(true)
 	{
 		char recv_msg[256];
+		int ret;
 		
-		if(recv(this->cli_ssock, recv_msg, 256, 0) < 0)
+		ret = recv(this->cli_ssock, recv_msg, 256, 0);
+				
+		if(ret != -1)
 		{
-			// Do nothing
+			// How to handle recv ???
+			usleep(300000);
+			
+			Message temp;
+			strcpy(temp.packet, recv_msg);
+			temp.decode();
+			
+			std::cout << "Messeage from " << (int)temp.source << " : " ;
+			
+			for(int i=0; i< temp.length-4 ; i++)
+				{
+					cout << temp.plain[i];
+				}
+			cout << endl;
 		}
 		else
 		{
-			// recv_msg handling
-			
-			std::cout << recv_msg << std::endl;	
+			continue;
 		}
 	}
 }

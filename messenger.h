@@ -10,6 +10,8 @@ class Messenger
 		int portNo;
 		char smsg[256];
 		std::string serverIp;
+		
+		std::thread recv_thread();
 	
 		void sock_connect(); // socket connect
 		void sock_nblock(); // socket non-block;
@@ -17,8 +19,6 @@ class Messenger
 		void recv_msg();
 		void send_recv_msg();
 		void sock_close();
-
-		std::thread recv_thread();
 	
 		Messenger() {
 			cli_ssock = -1;

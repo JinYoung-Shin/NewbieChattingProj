@@ -1,32 +1,34 @@
 #include "CSheader.h"
-#include "messageHandler.h"
+#include "message.h"
 
-#define MAX_CLIENT_FD 10
+// #define MAX_CLIENT_FD 10
 
 int main(void) 
 {
 	int ls; // server(listening) socket
 	int cs; // client socket
 	int s; // socket
+	int sock_opt; // variable to prevent bind (duplicatiFon) error
 	
+	int socket_cli[MAX_CLIENT_FD]; // current client
 	int num_cli = 0; // current client #
 	int max_cli = 0; // max client file descriptor
-	int socket_cli[MAX_CLIENT_FD];
 	int state;
 	int cli_len;
 	int counter;
-	int sock_opt; // variable to prevent bind error
-	char buffer[1024]; // msg buffer
 	int ilen;
+	char buffer[256]; // msg buffer
+	
+	Message cli_m;
 	
 	fd_set fsStatus, allStatus;
+
 	struct timeval timeout;
-	
 	struct sockaddr_in serverAddr;
 	struct sockaddr_in clientAddr;
 	
-	// Create socket
-	if((ls = socket(PF_INET, SOCK_STREAM, 0)) < 0) // Open Socket with IPv4 + TCP Protocol
+	// Create socket(with IPv4 + TCP Protocol)
+	if((ls = socket(PF_INET, SOCK_STREAM, 0)) < 0)
 	{
 		std::cout << "socket error" << std::endl;
 		exit(1);
@@ -64,31 +66,39 @@ int main(void)
 		socket_cli[i] = -1;
 	}
 	
+	std::cout << "Server is Running" << std::endl;
+	
 	FD_ZERO(&fsStatus);
 	FD_SET(ls, &fsStatus);
 	
-	std::cout << "Server is Running" << std::endl;
-	
-	// Server Runs(Forever)
+	// Server Runs
 	while(true)
 	{
+		
+		
 		allStatus = fsStatus;
+		
 		state = select(max_cli + 1, &allStatus, NULL, NULL, 0);
 		
-		if(FD_ISSET(ls, &allStatus)) {
+		//if accept
+		if(FD_ISSET(ls, &allStatus)) 
+		{
 			cli_len = sizeof(clientAddr);
 			
 			cs = accept(ls, (struct sockaddr*)&clientAddr, (socklen_t*)&cli_len);
 			
 			std::cout << "IP : " << inet_ntoa(clientAddr.sin_addr) << " Port : " << ntohs(clientAddr.sin_port) << " client socket : " << cs << std::endl;
 			
-			for(counter = 0; counter < MAX_CLIENT_FD; counter++) {
+			for(counter = 0; counter < MAX_CLIENT_FD; counter++) 
+			{
 				if(socket_cli[counter] < 0)
 				{
 					socket_cli[counter] = cs;
 					break;
 				}
 			}
+			
+			// Max client check
 			
 			FD_SET(cs, &fsStatus);
 
@@ -106,44 +116,79 @@ int main(void)
 			{
 				continue;
 			}
+			cout << endl << "conneted client num : " << num_cli+1 << endl;
 		}
 		
+		
+		//if send buffer
 		for(int i = 0; i <= num_cli; i++)
 		{
-			if(( s = socket_cli[i]) < 0)
+			if((s = socket_cli[i]) < 0)
 			{
 				continue;
 			}
 			
-			if(FD_ISSET(s, &fsStatus))
+			if(FD_ISSET(s, &allStatus))
 			{
-				memset(buffer, 0, 1024);
-								
-				ilen = read(s, buffer, 1024);
+				memset(buffer, 0, 256);
 				
-				if ( ilen == -1)
+				ilen = read(s, buffer, 256);
+				if(ilen < 0)
 				{
-					std::cout << "read failed" << std::endl;
+					if(errno == EAGAIN) 
+					{
+						continue;
+					}
+					else
+					{
+						std::cout << "read failed" << std::endl;
+						exit(1);
+					}
 				}
-				
-				buffer[ilen] = '\0';
-				
-				std::cout << "Message from client socket " << s << " : " << buffer << std::endl;
-				// messageHandler aaa;
-				// aaa.messageHandler(buffer, s, ilen);  // 온전한 메시지인지 확인
-						
-				//끊긴 경우
-				
-				write(s, buffer, 1024);
-				
-				if(--state <= 0)
+				else if(ilen == 0)
 				{
-					break;
+					
+				}
+				else
+				{
+					buffer[ilen] = '\0';
+
+					cout << endl;
+				
+					std::cout << "Message from client socket " << s << " : " ;
+					
+					cli_m.push(buffer); //push the buffer
+					cli_m.encode();	    //extract header from buffer
+					cli_m.source = s;
+					cli_m.pop(socket_cli, s);
+					
+					//print the message in server
+					for(int i=0; i< cli_m.length-4 ; i++)
+					{
+						cout << cli_m.plain[i];
+					}
+					cout << endl;
+					
+					for(int i = 0; i < num_cli; i++)
+					{
+						if(i == s) 
+						{
+							continue;
+						}
+						
+					}
+					
+					if(--state <= 0)
+					{
+						break;
+					}
 				}
 			}
 		}
-		
 	}
-	//close
+	//FD_CLEAR
+	
+	close(ls);
+	
 	return 0;
 }
