@@ -1,20 +1,23 @@
 CC = g++
-CFLAGS = -std=c++11 -g -Wall
+CFLAGS = -std=c++11
 LIBS = -lpthread 
 
 OBJS = server.o message.o 
 
 TARGET = server
 
-.SUFFIXES : .cpp .o
+.SUFFIXES: .cpp .o
 
-all : $(TARGET) 
+all: $(TARGET) 
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
+%.o: %.cpp
+	$(CC) $(CFLAGS) -c $<
+
 server.o: server.cpp message.cpp CSheader.h
 message.o: message.cpp message.h CSheader.h
 
-clean :
+clean:
 	rm -rf $(OBJS) $(TARGET)

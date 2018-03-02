@@ -1,21 +1,24 @@
 CC = g++
-CFLAGS = -std=c++11 -g -Wall
+CFLAGS = -std=c++11
 LIBS = -lpthread 
  
 OBJS = client.o message.o messenger.o
 
 TARGET = client
 
-.SUFFIXES : .cpp .o
+.SUFFIXES: .cpp .o
 
-all : $(TARGET)
+all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $(LIBS) -o $@ $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
+
+%.o: %.cpp
+	$(CC) $(CFLAGS) -c $<
 
 client.o: client.cpp messenger.cpp messenger.h message.h
 messenger.o: messenger.cpp messenger.h message.cpp CSheader.h
 message.o: message.cpp message.h CSheader.h
 
-clean :
+clean:
 	rm -rf $(OBJS) $(TARGET)
