@@ -13,9 +13,9 @@
 
 
 // 전체 test클래스를 테스트할지의 여부.
-#define FULL_TEST
+// #define FULL_TEST
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
     // Adds the test to the list of test to run
     CPPUNIT_NS::TextUi::TestRunner runner;

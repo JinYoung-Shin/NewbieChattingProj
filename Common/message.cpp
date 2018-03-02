@@ -1,9 +1,6 @@
 #include "message.h"
 
-
-
 void Message::encode() {
-	
 	this->length = strlen(this->plain)+4;
 
 	this->packet[0] = this->length & 0xFF ;
@@ -16,8 +13,6 @@ void Message::encode() {
 		this->packet[i + 4] = this->plain[i];
 	}
 	this->packet[this->length] = '\0';
-
-
 }
 
 void Message::decode() 
@@ -63,16 +58,16 @@ void Message::pop(int *socket_id, int s) {
 	this->length = this->buffer[0];
 	
 	
-	if (this->length <= this->b_length) //more than 1 message
+	if(this->length <= this->b_length) //more than 1 message
 	{
-		for ( int i=0; i < this->length ; i++)
+		for(int i = 0; i < this->length ; i++)
 		{
 			this->packet[i] = this->buffer[i];
 		}
 		
 		this->packet[this->length] = 0;
 		
-		for ( int i=0; i < b_length - this->length+1 ; i++)
+		for(int i = 0; i < b_length - this->length+1 ; i++)
 		{
 			this->buffer[i] = this->buffer[i+this->length];
 		}
@@ -86,7 +81,6 @@ void Message::pop(int *socket_id, int s) {
 		
 		for(int i = 0; i < MAX_CLIENT_FD; i++)// 전체 접속 인원 검색
 		{
-			
 			if(socket_id[i] != s)  //broadcasting except the sender client
 			{
 					send(socket_id[i], this->packet, 256, 0);  

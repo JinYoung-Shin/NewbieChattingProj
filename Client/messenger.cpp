@@ -1,6 +1,5 @@
 #include "messenger.h"
-#include "message.h"
-
+#include "../Common/message.h"
 
 void Messenger::sock_connect() 
 {
@@ -8,7 +7,6 @@ void Messenger::sock_connect()
 	
 	std::cout << "Please, enter the Server IP address : ";
 	std::getline(std::cin, this->serverIp);
-	// std::cin >> this->serverIp;
 	std::cout << "Please, enter the Port number : ";
 	std::cin >> this->portNo;
 	
@@ -52,19 +50,7 @@ void Messenger::send_msg()
 		char send_msg[256];
 		memset(send_msg, 0, 256);
 		
-		std::cin.getline( send_msg, 256);
-
-		// std::cin >> send_msg; //.getline(send_msg, 256); //cin.getline( send_msg, 256, '\n');
-		// std::getline(std::cin, send_msg);
-		// std::cin.get(send_msg, 256);
-		// if(send_msg == NULL) 
-		// {
-			
-		// }
-		// else
-		// {
-		// 	std::cin.getline(send_msg, 256);	
-		// }
+		std::cin >> send_msg;
 		
 		Message temp;
 				
@@ -89,7 +75,6 @@ void Messenger::recv_msg()
 				
 		if(ret != -1)
 		{
-			// How to handle recv ???
 			usleep(300000);
 			
 			Message temp;
@@ -99,9 +84,9 @@ void Messenger::recv_msg()
 			std::cout << "Messeage from " << (int)temp.source << " : " ;
 			
 			for(int i=0; i< temp.length-4 ; i++)
-				{
-					cout << temp.plain[i];
-				}
+			{
+				cout << temp.plain[i];
+			}
 			cout << endl;
 		}
 		else

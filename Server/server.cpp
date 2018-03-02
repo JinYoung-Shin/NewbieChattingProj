@@ -1,7 +1,8 @@
-#include "CSheader.h"
-#include "message.h"
+#include "../Common/CSheader.h"
+#include "../Common/message.h"
 
-// #define MAX_CLIENT_FD 10
+#define MAX_CLIENT_FD 10
+#define SERV_PORT 8888
 
 int main(void) 
 {
@@ -9,7 +10,6 @@ int main(void)
 	int cs; // client socket
 	int s; // socket
 	int sock_opt; // variable to prevent bind (duplicatiFon) error
-	
 	int socket_cli[MAX_CLIENT_FD]; // current client
 	int num_cli = 0; // current client #
 	int max_cli = 0; // max client file descriptor
@@ -43,7 +43,7 @@ int main(void)
 	// Bind Socket
 	memset(&serverAddr, 0, sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(8888); // Default Port
+	serverAddr.sin_port = htons(SERV_PORT); // Default Port
 	serverAddr.sin_addr.s_addr = htons(INADDR_ANY); // Default IP address
 	
 	if((bind(ls, (const struct sockaddr*)&serverAddr, sizeof(serverAddr))) < 0 )
@@ -74,13 +74,10 @@ int main(void)
 	// Server Runs
 	while(true)
 	{
-		
-		
 		allStatus = fsStatus;
 		
 		state = select(max_cli + 1, &allStatus, NULL, NULL, 0);
 		
-		//if accept
 		if(FD_ISSET(ls, &allStatus)) 
 		{
 			cli_len = sizeof(clientAddr);
@@ -119,8 +116,6 @@ int main(void)
 			cout << endl << "conneted client num : " << num_cli+1 << endl;
 		}
 		
-		
-		//if send buffer
 		for(int i = 0; i <= num_cli; i++)
 		{
 			if((s = socket_cli[i]) < 0)
@@ -162,7 +157,6 @@ int main(void)
 					cli_m.source = s;
 					cli_m.pop(socket_cli, s);
 					
-					//print the message in server
 					for(int i=0; i< cli_m.length-4 ; i++)
 					{
 						cout << cli_m.plain[i];
