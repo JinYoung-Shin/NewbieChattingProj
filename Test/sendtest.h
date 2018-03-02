@@ -1,22 +1,14 @@
-#include <cppunit/TestFixture.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include "messenger.h"
+#include "../Client/messenger.h"
+#include "gtest/gtest.h"
 
 class SendTest: public CPPUNIT_NS::TestFixture
 {
-	CPPUNIT_TEST_SUITE(CalculatorTest);
-    
-	CPPUNIT_TEST( test ); // Test List
-    
-	CPPUNIT_TEST_SUITE_END();
-	
-public:
-	SendTest();
-	~SendTest();
+	public:
+		SendTest();
+		~SendTest();
 
-	void setUp();
-	void tearDown();
-	
+		void setUp();
+		void tearDown();
+
 	// Functions to be tested
-	
 };

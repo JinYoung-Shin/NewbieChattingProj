@@ -1,24 +1,23 @@
 #include "sendtest.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION(SendTest);
-
-SendTest::SendTest()
-{
+TEST(Messenger, DefaultConstructtor) {
+	EXPECT_EQ(-1, Messenger.clissock);
 }
 
-SendTest::~SendTest()
+// send_msg test
+
+// recv_msg test
+
+// main
+int main(int argc, char* argv[])
 {
+	/*The method is initializes the Google framework and must be called before RUN_ALL_TESTS */
+	::testing::initGoogleTest(&argc, argv);
+	
+	/*
+	RUN_ALL_TESTS automatically detects and runs all the tests defined using the TEST macro.
+    It's must be called only once in the code because multiple calls lead to conflicts and,
+    therefore, are not supported.
+    */
+	return RUN_ALL_TESTS();
 }
-
-
-void SendTest::setUp()
-{
-
-}
-
-void SendTest::tearDown()
-{
-
-}
-
-// Functions to be tested

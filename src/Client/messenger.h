@@ -1,6 +1,6 @@
 #ifndef MESSENGER_H
 #define MESSENGER_H
-#include "../Common/CSheader.h"
+#include "CSheader.h"
 
 class Messenger 
 {

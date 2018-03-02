@@ -1,21 +1,22 @@
-#include <cppunit/CompilerOutputter.h>
-#include <cppunit/extensions/TestFactoryRegistry.h>
-#include <cppunit/TestResult.h>
-#include <cppunit/TestResultCollector.h>
-#include <cppunit/TestRunner.h>
-#include <cppunit/BriefTestProgressListener.h>
-	
-#ifdef _DEBUG
-#pragma comment(lib, "cppunitd.lib")
-#else
-#pragma comment(lib, "cppunit.lib")
-#endif
-
-
-// 전체 test클래스를 테스트할지의 여부.
-// #define FULL_TEST
+#ifndef __TEST__
+#define __TEST__
+#include "gtest/gtest.h"
 
 int main(int argc, char* argv[])
+{
+	/*The method is initializes the Google framework and must be called before RUN_ALL_TESTS */
+	::testing::initGoogleTest(&argc, argv);
+	
+	/*
+	RUN_ALL_TESTS automatically detects and runs all the tests defined using the TEST macro.
+    It's must be called only once in the code because multiple calls lead to conflicts and,
+    therefore, are not supported.
+    */
+	return RUN_ALL_TESTS();
+}
+
+/*
+int _tmain(int argc, TCHAR* argv[])
 {
     // Adds the test to the list of test to run
     CPPUNIT_NS::TextUi::TestRunner runner;
@@ -47,3 +48,6 @@ int main(int argc, char* argv[])
     // Return error code 1 if the one of test failed.
     return wasSucessful ? 0 : 1;
 }
+*/
+
+#endif

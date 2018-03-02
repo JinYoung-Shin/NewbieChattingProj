@@ -1,6 +1,6 @@
 #ifndef GUEST_H
 #define GUEST_H
-#include "../Common/CSheader.h"
+#include "CSheader.h"
 
 class Guest 
 {

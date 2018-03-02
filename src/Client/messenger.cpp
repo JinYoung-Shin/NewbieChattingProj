@@ -1,5 +1,5 @@
 #include "messenger.h"
-#include "../Common/message.h"
+#include "message.h"
 
 void Messenger::sock_connect() 
 {

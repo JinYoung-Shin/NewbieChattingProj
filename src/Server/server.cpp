@@ -1,5 +1,5 @@
-#include "../Common/CSheader.h"
-#include "../Common/message.h"
+#include "CSheader.h"
+#include "message.h"
 
 #define MAX_CLIENT_FD 10
 #define SERV_PORT 8888
