@@ -49,8 +49,8 @@ void Messenger::send_msg()
 		char get_buffer[256];
 		char send_msg[256];
 		memset(send_msg, 0, 256);
-		
-		std::cin >> send_msg;
+	
+		fgets(send_msg, 256, stdin);
 		
 		Message temp;
 				
